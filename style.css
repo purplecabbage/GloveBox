@@ -1,0 +1,216 @@
+
+
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-family: Helvetica;
+}
+
+body 
+{
+	min-height: 460px;
+	max-height:460px;
+	height:460px;
+	background-color:#000;
+
+}
+
+/* Set our fixed elements above everything else */
+#header, #footer {
+	left: 0;
+	display: block;
+	width: 100%;
+	z-index: 200;
+
+	-webkit-box-sizing: border-box;
+    border-bottom: 1px solid #141313;
+ 
+	margin-bottom:2px;
+    height: 36px;
+    background:  #141313 repeat-x;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(128, 128, 128, 0.25)), to(rgba(0, 0, 0, 0.5)));
+    position: relative;
+	
+}
+
+/* Header */
+#header h1 {
+	color: #FFF;
+	text-shadow: rgba(0, 0, 0, 0.6) 0px -1px 0px;
+	font-size: 20px;
+	text-align: center;
+	line-height: 44px;
+}
+
+/* Footer */
+#footer {
+	position: absolute;
+	top: 368px;
+	height: 49px;
+	background-position: center bottom;
+}
+
+
+
+
+/* Container */
+.container
+{
+	overflow:hidden;
+	width:160px;
+	float:left;
+	clear:none;
+}
+
+#container1 
+{
+	height:336px;
+	background:#FFFDCA;
+}
+
+#container2 
+{
+	height:336px;
+	background:#9894B7;
+}
+
+/* Content */
+.content {
+	position: relative;
+	border-top: 1px solid #e0e0e0;
+	
+}
+
+.content li {
+	position: relative;
+	list-style-type: none;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	-webkit-margin-top-collapse: separate;
+	-webkit-margin-bottom-collapse: separate;
+	border: 1px solid #e0e0e0;
+	height: 47px;
+}
+
+.content li.active {
+	
+}
+
+.content li.active span {
+	color: #fff;
+}
+
+.content li span {
+	position: absolute;
+	left: 10px;
+	top: 12px;
+	height: 22px;
+	right: 30px;
+	width: auto;
+	color: #000;
+	font-weight: bold;
+	font-size: 20px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+#footer 
+{
+	position: absolute;
+	top: 368px;
+	height: 49px;
+	background-position: center bottom;
+}
+
+#footer ul 
+{
+	margin: 0 auto;
+	padding: 3px 0 0;
+	list-style: none;
+	display: block;
+	height: 46px;
+	width: 640px;
+	text-align: center;
+	overflow: hidden;
+}
+
+#footer li 
+{
+	margin: 0 2px;
+	float: left;
+	position: relative;
+}
+
+#footer li.active {
+	border: 3px solid;
+	border-width: 0 3px;
+	background:#000;
+	-webkit-border-image: url("img/footer-hover.png") 0 3;
+}
+
+#footer span {
+	padding: 29px 3px 3px;
+	float: left;
+	width: 54px;
+	color: #bbb;
+	font-weight: bold;
+	font-size: 10px;
+	text-decoration: none;
+	background: url("img/footer-buttons.png") no-repeat -2px -50px;
+}
+
+#footer li.active span {
+	padding-left: 0;
+	padding-right: 0;
+	color: #fff;
+}
+
+#footer .team.active span {
+	background-position: -5px top;
+}
+
+#footer .feed span {
+	background-position: -66px -50px;
+}
+
+#footer .feed.active span {
+	background-position: -69px top;
+}
+
+#footer .post span {
+	background-position: -130px -50px;
+}
+
+#footer .post.active span {
+	background-position: -133px top;
+}
+
+#footer .box span {
+	background-position: -194px -50px;
+}
+
+#footer .box.active span {
+	background-position: -197px top;
+}
+
+#footer .games span {
+	background-position: -258px -50px;
+}
+
+#footer .games.active span {
+	background-position: -261px top;
+}
+
+#footer .tweets span {
+	background-position: -322px -50px;
+}
+
+#footer .tweets.active span {
+	background-position: -325px top;
+}
+
+

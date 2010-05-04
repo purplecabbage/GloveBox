@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+	<!-- Change this if you want to allow scaling -->
+    <meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;" />
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <title>GloveBox</title>
+	
+	<link media="screen" href="style.css" type= "text/css" rel="stylesheet" />
+	
+	<script src="GloveBox.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+
+
+	
+	function onBodyLoad()
+	{
+		document.addEventListener("touchmove", preventBehavior, false);
+		
+		var scroll1 = new GloveBox(document.getElementById("content1"));
+		//scroll1.scrollX = false;
+		
+		var scroll2 = new GloveBox(document.getElementById("content2"));
+
+		var btnScroll = new GloveBox(document.getElementById("horzList"));
+		btnScroll.scrollX = true;
+		btnScroll.scrollY = false;
+		
+		window.scrollTo(0,-200);
+	}
+	
+	function preventBehavior(e) 
+	{ 
+      	e.preventDefault(); 
+    };
+	
+	
+	function showImageVersion()
+	{
+		window.location = "imageScroller.html";
+	}
+    
+    </script>
+  </head>
+  <body onload="onBodyLoad()">
+  
+  	<div id="header">
+		<h1 onclick="showImageVersion()">Two Lists and a ToolBar</h1>
+	</div>
+	
+	<div id="container1" class="container">
+			<div id="content1" class="content">
+				<p>A lot of this scroller was based on the excellent work of Richard Herrera.  In particular this
+					blog post <a href="http://doctyper.com/archives/200808/fixed-positioning-on-mobile-safari/">here</a>
+				</p>
+				
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vulputate ultricies lorem, eget sollicitudin libero feugiat id. Integer luctus urna a ligula pellentesque ac laoreet magna tempor. Integer mi lectus, luctus vitae pellentesque at, tristique vel diam. Etiam ac felis libero, luctus porttitor tellus. Pellentesque sem erat, ornare sed ullamcorper eu, hendrerit sed quam. Donec vestibulum nibh non quam consequat a dapibus orci lacinia. Nulla facilisi. Nunc lobortis, odio nec laoreet semper, lacus elit mollis libero, interdum semper mauris sapien sit amet massa. Praesent faucibus, enim in condimentum luctus, quam urna elementum magna, quis elementum sapien nunc a odio. Vestibulum cursus lorem eu lorem suscipit gravida. Nunc a justo quis quam bibendum gravida in at lorem. Praesent egestas tortor sit amet lacus volutpat scelerisque. In hac habitasse platea dictumst.
+				</p>
+			<br/>
+			</div>
+		</div>
+		
+		<div id="container2" class="container">
+			<div id="content2" class="content">
+				<ul>
+					<li><span rel="#">Lorem</span></li>
+					<li><span rel="#">ipsum</span></li>
+					<li><span rel="#">dolor</span></li>
+					<li><span rel="#">sit amet</span></li>
+					<li><span rel="#">consectetur</span></li>
+					<li><span rel="#">adipiscing</span></li>
+					<li><span rel="#">Etiam</span></li>
+					<li><span rel="#">dignissim</span></li>
+					<li><span rel="#">erat at</span></li>
+					<li><span rel="#">lacus</span></li>
+					<li><span rel="#">laoreet</span></li>
+					<li><span rel="#">molestie.</span></li>
+					<li><span rel="#">Aenean</span></li>
+					<li><span rel="#">ultrices </span></li>
+					<li><span rel="#">nibh non</span></li>
+					<li><span rel="#">tellus</span></li>
+					<li><span rel="#">posuere</span></li>
+					<li><span rel="#">id lobortis</span></li>
+					<li><span rel="#">eros</span></li>
+					<li><span rel="#">fermentum</span></li>
+				</ul>
+			</div>
+		</div>
+
+	<div id="footer">
+		<ul id="horzList">
+			<li class="team"><span>Team</span></li>
+			<li class="feed"><span>Feed</span></li>
+			<li class="post"><span>Post</span></li>
+			<li class="box"><span>Box</span></li>
+			<li class="games"><span>Games</span></li>
+			<li class="team"><span>Team</span></li>
+			<li class="feed"><span>Feed</span></li>
+			<li class="post"><span>Post</span></li>
+			<li class="box"><span>Box</span></li>
+			<li class="games"><span>Games</span></li>
+		</ul>
+	</div>
+  	
+  </body>
+</html>

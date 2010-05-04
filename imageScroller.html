@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+	<!-- Change this if you want to allow scaling -->
+    <meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;" />
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <title>ScrollTest</title>
+	
+	<link media="screen" href="style.css" type= "text/css" rel="stylesheet" />
+	<script src="GloveBox.js" type="text/javascript" charset="utf-8"></script>
+
+    <script type="text/javascript" charset="utf-8">
+
+
+	
+	function onBodyLoad()
+	{
+		document.addEventListener("touchmove", preventBehavior, false);
+
+		var scroll1 = new GloveBox(document.getElementById("scrollImage"));
+		scroll1.scrollX = true;
+		
+		var btnScroll = new GloveBox(document.getElementById("horzList"));
+		btnScroll.scrollX = true;
+		btnScroll.scrollY = false;
+		
+		window.scrollTo(0,-200);
+
+	}
+	
+	function preventBehavior(e) 
+	{ 
+      e.preventDefault(); 
+    };
+
+	
+	function showMainVersion()
+	{
+		
+		window.location = "index.html";
+	}
+    
+    </script>
+  </head>
+  <body onload="onBodyLoad()">
+  
+  	<div id="header" onclick="showMainVersion()">
+		<h1>Scrollable Image</h1>
+	</div>
+
+	<div id="container1" class="container" style="width:100%">
+			<img src="img/glovebox.jpg" id="scrollImage"/>
+	</div>
+		
+	<div id="footer">
+		<ul id="horzList">
+			<li class="team"><span>Team</span></li>
+			<li class="feed"><span>Feed</span></li>
+			<li class="post"><span>Post</span></li>
+			<li class="box"><span>Box</span></li>
+			<li class="games"><span>Games</span></li>
+			<li class="team"><span>Team</span></li>
+			<li class="feed"><span>Feed</span></li>
+			<li class="post"><span>Post</span></li>
+			<li class="box"><span>Box</span></li>
+			<li class="games"><span>Games</span></li>
+		</ul>
+	</div>
+  	
+  </body>
+</html>
