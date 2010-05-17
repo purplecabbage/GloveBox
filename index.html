@@ -2,93 +2,293 @@
 <html>
   <head>
 	<!-- Change this if you want to allow scaling -->
-    <meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;" />
+    <meta name="viewport" content="width=deviceWidth; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;" />
 
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
-    <title>GloveBox</title>
+    <title>GloveBox Demo - trends on twitter</title>
 	
 	<link media="screen" href="style.css" type= "text/css" rel="stylesheet" />
-	
 	<script src="GloveBox.js" type="text/javascript" charset="utf-8"></script>
+	
+	<style>
+	
+	#spScale
+	{
+		color:#FFF;
+		position:absolute;
+		left:20px;
+		top:40px;
+		background-color:rgba(0,0,0,0.5);
+	}
+	
+	#spX
+	{
+		color:#FFF;
+		position:absolute;
+		left:20px;
+		top:60px;
+		background-color:rgba(0,0,0,0.5);
+	}
+	
+	#spY
+	{
+		color:#FFF;
+		position:absolute;
+		left:20px;
+		top:80px;
+		background-color:rgba(0,0,0,0.5);
+	}
+	
+	#spWidth
+	{
+		color:#FFF;
+		position:absolute;
+		left:20px;
+		top:100px;
+		background-color:rgba(0,0,0,0.5);
+	}
+	
+	dl
+	{
+		color:#fff;
+		
+	}
+	
+	dt
+	{
+		background-color:#666;
+		font-weight:bold;
+		text-indent:10px;
+		margin:0px 2px;
+		padding:10px 20px;
+	}
+	
+	dd
+	{
+	    text-indent:20px;	
+	    margin:10px 10px;
+	    padding:5px 5px;
+	    text-overflow:ellipsis;
+	    overflow:hidden;
+	}
+	
+	img {
+	border: 0;
+}
+
+#tweetList {
+	color: #ddd;
+}
+#tweetList .tweet {
+	padding: 8px;
+	background:rgba(64,64,64,0.5);
+	border: 1px solid rgba(128,128,128,0.5);
+	opacity: 0.8;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	margin-bottom: .5em;
+}
+
+#tweetList a {
+	color: #05635F;
+	text-decoration: underline;
+}
+#tweetList .avatar {
+	float: left;
+}
+#tweetList .content 
+{
+	border:none;
+	padding-left: 55px;
+}
+#tweetList .extra {
+	color: #999;
+}
+
+#tweetList h4
+{
+	width:100%;
+	text-align:center;
+	margin:40px 40px;
+}
+
+* 
+{
+	/* prevent callout to copy image, etc when tap to hold */
+    -webkit-touch-callout: none; 
+    /* prevent webkit from resizing text to fit */
+   -webkit-text-size-adjust: none; 
+   /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+   -webkit-tap-highlight-color: rgba(0,0,0,0);
+   /* prevent copy paste, to allow, change 'none' to 'text' */
+   -webkit-user-select: none; 
+} 
+		
+	</style>
+	
     <script type="text/javascript" charset="utf-8">
 
+        var trendUrl = "http://search.twitter.com/trends/weekly.json?exclude=hashtags&callback=onGotTrending";
 
+        var searchUrl = "http://search.twitter.com/search.json?callback=onGotDetails&q=";
+        var searchScript; // so we can remove it, before reusing it
+
+        var tweetScroller;
+        var trendScroller;
+        var targetElement; // selected item in the list
+        
+        
 	
 	function onBodyLoad()
 	{
 		document.addEventListener("touchmove", preventBehavior, false);
-		
-		var scroll1 = new GloveBox(document.getElementById("content1"));
-		//scroll1.scrollX = false;
-		
-		var scroll2 = new GloveBox(document.getElementById("content2"));
 
 		var btnScroll = new GloveBox(document.getElementById("horzList"));
 		btnScroll.scrollX = true;
 		btnScroll.scrollY = false;
+
+		window.scrollTo(0, -200);
+		trendScroller = new GloveBox(document.getElementById("masterList"));
+		tweetScroller = new GloveBox(document.getElementById("tweetList"));
 		
-		window.scrollTo(0,-200);
-	}
+		getTrending();
+    }
+
+    function getTrending()
+    {
+        var head = document.getElementsByTagName('head');
+        var script = document.createElement('script');
+        script.src = trendUrl;
+        head[0].appendChild(script);
+    }
+
+    function onGotTrending(res)
+    {
+        var list = "";
+        var fTrend;
+        for (var dt in res.trends) {
+        
+            
+            list += "<dt>" + dt + "</dt>";
+            var items = res.trends[dt];
+            for (var item in items) {
+
+                if (fTrend == null)
+                    fTrend = items[item].name;
+                list += "<dd onclick=\"getDetail(event,'" + items[item].query + "')\">" + items[item].name + "</dd>";
+            }
+        }
+
+        document.getElementById("masterList").innerHTML = list;
+        
+        // now grab the first one
+        getDetail(null,fTrend);
+
+    }
+
+    function getDetail(event,str)
+    {
+        if (event != null) {
+            if (targetElement != null) {
+                targetElement.style.backgroundColor = "#222";
+            }
+            targetElement = event.target;
+            targetElement.style.backgroundColor = "#05635F";
+        }
+        
+        var head = document.getElementsByTagName('head');
+        if (searchScript == null) {
+            searchScript = document.createElement('script');
+            searchScript.src = searchUrl + str;
+            head[0].appendChild(searchScript);
+        }
+        else {
+
+            head[0].removeChild(searchScript);
+            searchScript = document.createElement('script');
+            searchScript.src = searchUrl + str;
+            head[0].appendChild(searchScript);
+        }
+        document.getElementById('tweetList').innerHTML = "<h4>" + str + " Loading ... </h4>";
+        tweetScroller.y = 0;
+        return false;
+    }
+
+    function onGotDetails(json)
+    {
+        var q;
+        var parent = document.getElementById('tweetList'); 
+        parent.innerHTML = '';
+        var child;
+        var html = "";
+
+        for (var i in json.results)
+        {
+            q = json.results[i];
+            html += "<div class='tweet'>";
+            html += '<div class="avatar"><img src="' + q.profile_image_url + '" alt="avatar" width="48" height="48" /></div>';
+
+
+            var date = new Date(q.created_at);
+
+            html += '<div class="content"><a href="http://m.twitter.com/' + q.from_user + '">' + q.from_user + '</a> ' + q.text + '<div class="extra">' + date.toLocaleDateString() + '</div></div>';
+            html += "</div>";
+        }
+
+        parent.innerHTML = html;
+    }
 	
 	function preventBehavior(e) 
 	{ 
-      	e.preventDefault(); 
+      e.preventDefault(); 
     };
 	
-	
-	function showImageVersion()
-	{
-		window.location = "imageScroller.html";
-	}
     
     </script>
   </head>
   <body onload="onBodyLoad()">
   
+ <script type="text/javascript">
+
+     var _gaq = _gaq || [];
+     _gaq.push(['_setAccount', 'UA-9634898-1']);
+     _gaq.push(['_trackPageview']);
+
+     (function()
+     {
+         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+     })();
+
+</script> 
+
   	<div id="header">
-		<h1 onclick="showImageVersion()">Two Lists and a ToolBar</h1>
+		<h1>Trends on Twitter</h1>
 	</div>
 	
-	<div id="container1" class="container">
-			<div id="content1" class="content">
-				<p>A lot of this scroller was based on the excellent work of Richard Herrera.  In particular this
-					blog post <a href="http://doctyper.com/archives/200808/fixed-positioning-on-mobile-safari/">here</a>
-				</p>
-				
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vulputate ultricies lorem, eget sollicitudin libero feugiat id. Integer luctus urna a ligula pellentesque ac laoreet magna tempor. Integer mi lectus, luctus vitae pellentesque at, tristique vel diam. Etiam ac felis libero, luctus porttitor tellus. Pellentesque sem erat, ornare sed ullamcorper eu, hendrerit sed quam. Donec vestibulum nibh non quam consequat a dapibus orci lacinia. Nulla facilisi. Nunc lobortis, odio nec laoreet semper, lacus elit mollis libero, interdum semper mauris sapien sit amet massa. Praesent faucibus, enim in condimentum luctus, quam urna elementum magna, quis elementum sapien nunc a odio. Vestibulum cursus lorem eu lorem suscipit gravida. Nunc a justo quis quam bibendum gravida in at lorem. Praesent egestas tortor sit amet lacus volutpat scelerisque. In hac habitasse platea dictumst.
-				</p>
-			<br/>
-			</div>
+ 
+	<div style="width:100%;position:absolute;bottom:49px;top:44px;overflow:hidden;">
+		<div id="master" style="width:260px;height:100%;overflow:hidden;float:left;clear:none;">
+		    <dl id="masterList">
+		    </dl>
+		    
 		</div>
-		
-		<div id="container2" class="container">
-			<div id="content2" class="content">
-				<ul>
-					<li><span rel="#">Lorem</span></li>
-					<li><span rel="#">ipsum</span></li>
-					<li><span rel="#">dolor</span></li>
-					<li><span rel="#">sit amet</span></li>
-					<li><span rel="#">consectetur</span></li>
-					<li><span rel="#">adipiscing</span></li>
-					<li><span rel="#">Etiam</span></li>
-					<li><span rel="#">dignissim</span></li>
-					<li><span rel="#">erat at</span></li>
-					<li><span rel="#">lacus</span></li>
-					<li><span rel="#">laoreet</span></li>
-					<li><span rel="#">molestie.</span></li>
-					<li><span rel="#">Aenean</span></li>
-					<li><span rel="#">ultrices </span></li>
-					<li><span rel="#">nibh non</span></li>
-					<li><span rel="#">tellus</span></li>
-					<li><span rel="#">posuere</span></li>
-					<li><span rel="#">id lobortis</span></li>
-					<li><span rel="#">eros</span></li>
-					<li><span rel="#">fermentum</span></li>
-				</ul>
-			</div>
+		<div id="tweetBox" style="height:100%;overflow:hidden;margin-left:20px;">
+		    <div id="tweetList" >
+		    </div>
 		</div>
-
+	</div>
+	
+	<span id="spScale"></span>
+	<span id="spX"></span>
+	<span id="spY"></span>	
+	<span id="spWidth"></span>	
+			<!--	
+	</div>
+	</div>
+		-->
 	<div id="footer">
 		<ul id="horzList">
 			<li class="team"><span>Team</span></li>
@@ -105,4 +305,5 @@
 	</div>
   	
   </body>
+  
 </html>
