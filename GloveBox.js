@@ -1,6 +1,5 @@
 
 
-
 function GloveBox(element)
 {
 	var self = this;
@@ -9,7 +8,6 @@ function GloveBox(element)
 	this.isScaling = false;
 
 	this.startScale = this._scale = 1.0;
-	
 	this.startAngle = this._angle = 0;
 	
 	this.isDragging = false;
@@ -34,6 +32,7 @@ function GloveBox(element)
 	par.addEventListener("touchend", function(e) { return self.onTouchEnd(e) }, false);
 	par.addEventListener("webkitTransitionEnd", function(e) { self.onTransitionEnd(e); }, false );
 	
+/*
 	par.addEventListener("gesturestart", function(e) { return self.onGestureStart(e) }, false);
 	par.addEventListener("gesturechange", function(e) { return self.onGestureChange(e) }, false);
     par.addEventListener("gestureend", function(e) { return self.onGestureEnd(e) }, false); 
@@ -41,6 +40,7 @@ function GloveBox(element)
     par.addEventListener("mousedown",function(e) { return self.onMouseDown(e) }, false); 
 	par.addEventListener("mousemove",function(e) { return self.onMouseMove(e) }, false); 
 	par.addEventListener("mouseup",function(e) { return self.onMouseUp(e) }, false); 
+*/
 	element.style.webkitTransformOrigin = "0% 0%";
 
 }
