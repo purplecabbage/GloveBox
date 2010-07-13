@@ -33,6 +33,7 @@ July 13, 2010 -jm
 	- listeners are added using delegate self, instead of closure function
 	- allows nested gloveboxes
 	- does not interfere with other touch events in the DOM 
+        - commented out debug doc writing
 :: Scaling is exceptionally buggy, use at your own risk|peril - jm
 
 */
@@ -206,9 +207,11 @@ GloveBox.prototype.scrollToBottom = function()
 GloveBox.prototype._updateTransform = function()
 {
 	
+	/* My own hacker way of seeing what is happening
 	document.getElementById("spScale").innerHTML = "Scale:" + this.scale;
 	document.getElementById("spX").innerHTML = "X:" + this.x;
 	document.getElementById("spY").innerHTML = "Y:" + this.y;
+	*/
 	
 	var transformTemplate = "translate3d(XXXpx,YYYpx,ZZZpx) scale3D(SCALE,SCALE,1.0)";// rotate(DEGREESdeg)"; // Coming soon ?
 	
