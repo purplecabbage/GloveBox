@@ -1,4 +1,41 @@
+/*
+The MIT License
 
+Copyright (c) 2010 Jesse MacFadyen 
+jesse.macfadyen@nitobi.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the 
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit 
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the 
+Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+/*
+	
+Changelog::
+	
+July 9, 2010 - jm
+	- PinchZoom support added.
+	- Customizable transitions.
+	- disables form elements while scrolling
+	- does not fire click events on elements if _dragThreshold has been exceeded
+
+July 13, 2010 -jm
+	- added check for createTouch in document ( mouse handlers are experimental only )
+	- listeners are added using delegate self, instead of closure function
+	- allows nested gloveboxes
+	- does not interfere with other touch events in the DOM 
+:: Scaling is exceptionally buggy, use at your own risk|peril - jm
+
+*/
 
 
 function GloveBox(element)
@@ -50,6 +87,7 @@ function GloveBox(element)
 	}
 	par.addEventListener('click', this, true);
 	element.addEventListener("webkitTransitionEnd", this, true );
+	element.style.webkitTransformOrigin = "0% 0%";
 }
 
 GloveBox.DraggingTransition =   "-webkit-transform none";
@@ -167,12 +205,17 @@ GloveBox.prototype.scrollToBottom = function()
 
 GloveBox.prototype._updateTransform = function()
 {
-	var transformTemplate = "translate3d(XXXpx,YYYpx,ZZZpx) scale(SCALE)";// rotate(DEGREESdeg)"; // Coming soon ?
+	
+	document.getElementById("spScale").innerHTML = "Scale:" + this.scale;
+	document.getElementById("spX").innerHTML = "X:" + this.x;
+	document.getElementById("spY").innerHTML = "Y:" + this.y;
+	
+	var transformTemplate = "translate3d(XXXpx,YYYpx,ZZZpx) scale3D(SCALE,SCALE,1.0)";// rotate(DEGREESdeg)"; // Coming soon ?
 	
 	var wkTrans = transformTemplate.replace(/XXX/, this._x);
 		wkTrans = wkTrans.replace(/YYY/,this._y);
 		wkTrans = wkTrans.replace(/ZZZ/,0); // future use?
-		wkTrans = wkTrans.replace(/SCALE/,this.scale);
+		wkTrans = wkTrans.replace(/SCALE/g,this.scale);
 		//wkTrans = wkTrans.replace(/DEGREES/,this._rotation);
 	
 	this.element.style.webkitTransform =  wkTrans;
@@ -392,6 +435,7 @@ GloveBox.prototype.touchcancel = function(e)
     this.touchend(e);
 }
 
+
 GloveBox.prototype.finishScrolling = function()
 {
 	this.state = "done";
@@ -400,24 +444,38 @@ GloveBox.prototype.finishScrolling = function()
 	
 	var parentNode = this.element.parentNode;
 	// get updated x position
-    var pWidth = parentNode.offsetWidth;
-    var selfWidth = this.element.scrollWidth * this.scale;
-    var maxX = ( selfWidth - pWidth ) / 2; // div 2 beacause we scale from the center ( 50% )
-    var minX = ( pWidth - selfWidth ) / 2;
 	
-	var newLeft = Math.min(maxX,Math.max(this.x,minX));
+    var pWidth = parentNode.clientWidth;
+    var selfWidth = this.element.scrollWidth * this.scale;
+    
+    var maxX =  (selfWidth - pWidth ) / 2;
+    var minX =  (pWidth - selfWidth) / 2;
+    var newLeft = this.x;// > 0 ? 0 : this.x; // hacking
+    
+	if(this.x < minX)
+		newLeft = minX;
+	else if(this.x > maxX)
+		newLeft = maxX;
+	
 	// get updated y
-
-    var pHeight = parentNode.offsetHeight;
+	
+    var pHeight = parentNode.clientHeight;
     var selfHeight = this.element.scrollHeight * this.scale;
     
-    var maxY = 0;
-    var minY = ( pHeight - selfHeight );
-    
-    var newTop = Math.min(maxY,Math.max(this.y,minY));
+    var maxY = ( selfHeight - pHeight );// / 2; // Turning off scale based positioning
+    var minY = ( pHeight - selfHeight );// / 2;
+	var newTop = this.y > 0 ? 0 : this.y;
+	
+	if(this.y < minY)
+		newTop = minY;
+	else if(this.y > maxY)
+		newTop = maxY;
+		
 	this.setPos(newLeft,newTop);
 
 }
+
+
 
 GloveBox.prototype.webkitTransitionEnd = function(e)
 {
