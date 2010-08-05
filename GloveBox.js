@@ -34,6 +34,10 @@ July 13, 2010 -jm
 	- allows nested gloveboxes
 	- does not interfere with other touch events in the DOM 
         - commented out debug doc writing
+
+August 4th, 2010 -fm
+	- fixed on android 2.2 (no createTouch function in document, check with 'TouchEvent' on window instead).
+
 :: Scaling is exceptionally buggy, use at your own risk|peril - jm
 
 */
@@ -78,7 +82,7 @@ function GloveBox(element)
 	this._dragThreshold = 10;
 	
 	var par = element.parentNode;
-	if("createTouch" in document)
+	if("createTouch" in document || "TouchEvent" in window)
 	{
 	    par.addEventListener('touchstart', this, false);
 	}
@@ -227,7 +231,7 @@ GloveBox.prototype._updateTransform = function()
 GloveBox.prototype.addTouchListeners = function()
 {
 	var par = this.element.parentNode;
-	if("createTouch" in document)
+	if("createTouch" in document || "TouchEvent" in window)
 	{
 	    par.addEventListener('touchmove', this, false);
         par.addEventListener('touchend', this, false);
@@ -245,7 +249,7 @@ GloveBox.prototype.addTouchListeners = function()
 GloveBox.prototype.removeTouchListeners = function()
 {
 	var par = this.element.parentNode;
-	if("createTouch" in document)
+	if("createTouch" in document || "TouchEvent" in window)
 	{
 	    par.removeEventListener('touchmove', this, false);
         par.removeEventListener('touchend', this, false);
@@ -427,7 +431,6 @@ GloveBox.prototype.touchend = function(e)
 	    // interpretation of momentum
 		var newLeft = Math.round(this.scrollX ? ( this.x + (2 * this.xVel) ) : this.x);
 		var newTop =  Math.round(this.scrollY ? ( this.y + (2 * this.yVel) ) : this.y);
-	
 		this.setPos(newLeft,newTop);
 	}
 	return false;
