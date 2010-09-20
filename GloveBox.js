@@ -36,13 +36,28 @@ July 13, 2010 -jm
         - commented out debug doc writing
 :: Scaling is exceptionally buggy, use at your own risk|peril - jm
 
+Sept 20, 2010 -jm
+    - cleaned up scaling code, still does not scale from correct point, but positioning after is correct.
+    - moved touchEvents/mouseEvents to static vars
+    - accepts constructor arg of string-id or dom element
+    - added clamping ( buggy, not ready for primetime )
+    - added snapping, to specify pixel grid to snap to, can be used for paging ( no events yet )
+    - mouse events are still fuct
+    - added GloveBox.CanTouch, incorporated fil maj's changes for android touch checking
+    
+    
+
 */
 
+GloveBox.touchEvents = ["touchmove","touchend","touchcancel"];
+GloveBox.mouseEvents = ["mousemove","mouseup","mouseout","mousewheel"];
+GloveBox.DraggingTransition =   "-webkit-transform none";
+GloveBox.AfterTouchTransition = "-webkit-transform 400ms ease";
+GloveBox.BounceBackTransition = "-webkit-transform 300ms ease-out"; 
+GloveBox.CanTouch = (("createTouch" in document) || ("TouchEvent" in window));
 
-function GloveBox(element)
+function GloveBox(elem)
 {
-	var self = this;
-	
 	this.formElements = null;
 	this.state = "ready";
 	this._scalable = false;
@@ -50,21 +65,34 @@ function GloveBox(element)
 	
 	this._rotation = 0;
 	this.canRotate = true;
-
+	
 	this.startScale = this._scale = 1.0;
 	this.startAngle = this._angle = 0;
 	this.maxScale = 4.0;
 	this.minScale = 0.1;
 	
 	this.isDragging = false;
-	this.element = element;
+
+	if (typeof elem == "string" || elem instanceof String) 
+	{
+		this.element = document.getElementById(elem);
+	}
+	else 
+	{
+		this.element = elem;
+	}
 	this._x = 0;
 	this._y = 0;
 	
 	this.startTime = 0;
 	
+	this.snap = null;// assign this an {x:pageWidth,y:pageHeight} to get scrolling to page offsets
+	
 	this.lastX = 0;
 	this.lastY = 0;
+	
+	this.clampX = false;
+	this.clampY = false;
 	
 	this.xVel = 0;
 	this.yVel = 0;
@@ -75,10 +103,12 @@ function GloveBox(element)
 	this._dragT  = null;
 	this._afterT  = null;
 	this._bounceT = null;
-	this._dragThreshold = 10;
+	this._dragThreshold = 20;
 	
-	var par = element.parentNode;
-	if("createTouch" in document)
+	this._scaleCenter = {x:0,y:0};
+	
+	var par = this.element.parentNode;
+	if(GloveBox.CanTouch)
 	{
 	    par.addEventListener('touchstart', this, false);
 	}
@@ -87,76 +117,53 @@ function GloveBox(element)
 	    par.addEventListener("mousedown",this,false);
 	}
 	par.addEventListener('click', this, true);
-	element.addEventListener("webkitTransitionEnd", this, true );
-	element.style.webkitTransformOrigin = "0% 0%";
+	this.element.addEventListener("webkitTransitionEnd", this, true );
+	this.element.style.webkitTransformOrigin = "0% 0%";
 }
 
-GloveBox.DraggingTransition =   "-webkit-transform none";
-GloveBox.AfterTouchTransition = "-webkit-transform 400ms ease";
-GloveBox.BounceBackTransition = "-webkit-transform 300ms ease-out";
 
-GloveBox.isDragging = false;
+
 
 GloveBox.prototype = 
 {
-	get x()
-	{
-		return this._x;
-	},
-	set x(inX)
-	{
-		this.setPos(inX,this._y);
-	},
+	get x(){ return this._x; },
+	set x(inX){ this.setPos(inX,this._y);},
 	
-	get y()
-	{
-		return this._y;
-	},
-	set y(inY)
-	{
-		this.setPos(this._x,inY);
-	},
+	get y(){ return this._y;},
+	set y(inY){ this.setPos(this._x,inY);},
 	
+	get scale(){return this._scale;},
 	set scale(inS)
 	{
 		this._scale = Math.max(Math.min(inS,this.maxScale),this.minScale);
 		this._updateTransform();
 	},
-	get scale()
-	{
-		return this._scale;
-	},
 	
 	// Transition to display while the user is dragging
-	get dragTrans()
-	{
+	get dragTrans(){
 		return this._dragT ? this._dragT : GloveBox.DraggingTransition;
 	},
-	set dragTrans(t)
-	{
+	set dragTrans(t){
 		this._dragT = t;
 	},
 	
 	// Transition to display when the user releases
-	get afterTrans()
-	{
+	get afterTrans(){
 		return this._afterT ? this._afterT : GloveBox.AfterTouchTransition;
 	},
-	set afterTrans(t)
-	{
+	set afterTrans(t){
 		this._dragT = t;
 	},
 	
 	// Transition to display when we enforce the boundaries
-	get bounceTrans()
-	{
+	get bounceTrans(){
 		return this._bounceT ? this._bounceT : GloveBox.BounceBackTransition;
 	},
-	set bounceTrans(t)
-	{
+	set bounceTrans(t){
 		this._bounceT = t;
 	},
 	
+	get canScale(){return this._scalable;},
 	set canScale(b)
 	{
 		this._scalable = (b == true);
@@ -168,12 +175,7 @@ GloveBox.prototype =
 		{
 			this.element.parentNode.removeEventListener("gesturestart", this,true);
 		}
-	},
-	get canScale()
-	{
-		return this._scalable;
 	}
-	
 }
 
 GloveBox.prototype.handleEvent = function(evt) 
@@ -206,13 +208,6 @@ GloveBox.prototype.scrollToBottom = function()
 
 GloveBox.prototype._updateTransform = function()
 {
-	
-	/* My own hacker way of seeing what is happening
-	document.getElementById("spScale").innerHTML = "Scale:" + this.scale;
-	document.getElementById("spX").innerHTML = "X:" + this.x;
-	document.getElementById("spY").innerHTML = "Y:" + this.y;
-	*/
-	
 	var transformTemplate = "translate3d(XXXpx,YYYpx,ZZZpx) scale3D(SCALE,SCALE,1.0)";// rotate(DEGREESdeg)"; // Coming soon ?
 	
 	var wkTrans = transformTemplate.replace(/XXX/, this._x);
@@ -224,84 +219,50 @@ GloveBox.prototype._updateTransform = function()
 	this.element.style.webkitTransform =  wkTrans;
 }
 
+
+
 GloveBox.prototype.addTouchListeners = function()
 {
 	var par = this.element.parentNode;
-	if("createTouch" in document)
+	var evtNames = GloveBox.CanTouch ? GloveBox.touchEvents : GloveBox.mouseEvents;
+	for(var n in evtNames)
 	{
-	    par.addEventListener('touchmove', this, false);
-        par.addEventListener('touchend', this, false);
-        par.addEventListener('touchcancel', this, false);
-    }
-    else
-    { 
-	    par.addEventListener("mousemove", this, false);
-	    par.addEventListener("mouseup", this, false);
-	    par.addEventListener("mousewheel",this,false);
-    }
-	
+		par.addEventListener(evtNames[n], this, false);
+	}
 }
 
 GloveBox.prototype.removeTouchListeners = function()
 {
 	var par = this.element.parentNode;
-	if("createTouch" in document)
+	var evtNames = GloveBox.CanTouch ? GloveBox.touchEvents : GloveBox.mouseEvents;
+	for(var n in evtNames)
 	{
-	    par.removeEventListener('touchmove', this, false);
-        par.removeEventListener('touchend', this, false);
-        par.removeEventListener('touchcancel', this, false);
-    }
-    else
-    {
-	    par.removeEventListener("mousemove", this, false);
-	    par.removeEventListener("mouseup", this, false);
-	    par.removeEventListener("mousewheel",this,false);
-    }
-        
+		par.removeEventListener(evtNames[n], this, false);
+	}
 }
 
 GloveBox.prototype.disableInputs = function()
 {
-	var selects = document.getElementsByTagName("select");
-	var inputs = document.getElementsByTagName("input");
-	var textAreas = document.getElementsByTagName("textarea");
-	
+	var src = document;
+	if("getElementsByTagName" in this.element.parentNode)
+	{
+		src = this.element.parentNode;
+	}
 	this.formElements = [];
-	if(selects != null)
+	var tags = ["select","input","textarea"];
+	for(var s in tags)
 	{
-		for(var n = 0; n < selects.length; n++)
+		var elems = src.getElementsByTagName(tags[s]);
+		if (elems) 
 		{
-			var elem = selects[n];
-			if(!elem.disabled)
+			for(var n = 0, len = elems.length; n < len; n++)
 			{
-				elem.disabled = true;
-				this.formElements.push(elem);
-			}
-		}
-	}
-	
-	if(inputs != null)
-	{
-		for(var n = 0; n < inputs.length; n++)
-		{
-			var elem = inputs[n];
-			if(!elem.disabled)
-			{
-				elem.disabled = true;
-				this.formElements.push(elem);
-			}
-		}
-	}
-	
-	if(textAreas != null)
-	{
-		for(var n = 0; n < textAreas.length; n++)
-		{
-			var elem = textAreas[n];
-			if(!elem.disabled)
-			{
-				elem.disabled = true;
-				this.formElements.push(elem);
+				var elem = elems[n];
+				if(!elem.disabled)
+				{
+					elem.disabled = true;
+					this.formElements.push(elem);
+				}
 			}
 		}
 	}
@@ -311,7 +272,7 @@ GloveBox.prototype.reenableInputs = function()
 {
 	if(this.formElements)
 	{
-		for(var n = 0; n < this.formElements.length; n++)
+		for(var n = 0, len = this.formElements.length; n < len; n++)
 		{
 			this.formElements[n].disabled = false;
 		}
@@ -359,10 +320,14 @@ GloveBox.prototype.touchstart = function(e)
 GloveBox.prototype.touchmove = function(e)
 {
 	// Don't track motion when multiple touches are down in this element (that's a gesture)
-	if (e.targetTouches.length != 1 || this.isScaling)
+	if(!e.targetTouches || e.targetTouches.length != 1 || this.isScaling)
 	{
 		return false;
 	}
+
+	var currentX = e.targetTouches[0].pageX;
+	var currentY = e.targetTouches[0].pageY;
+	
 	if(this.formElements == null)
 	{
 		this.disableInputs();
@@ -372,9 +337,6 @@ GloveBox.prototype.touchmove = function(e)
 	// Prevent the browser from doing its default thing (scroll, zoom)
 	e.preventDefault();
 	
-	var currentX = e.targetTouches[0].pageX;
-	var currentY = e.targetTouches[0].pageY;
-	
 	var dX = (currentX - this.lastX);
 	var dY = (currentY - this.lastY);
 	
@@ -382,7 +344,7 @@ GloveBox.prototype.touchmove = function(e)
 	{
 		if( Math.abs(dX) > this._dragThreshold || Math.abs(dY) > this._dragThreshold )
 		{
-			this.isDragging = GloveBox.isDragging = true;
+			this.isDragging = true;
 			// use a tighter animation during dragging [ or NONE! ]
 			this.element.style.webkitTransition = this.dragTrans;
 		}
@@ -393,9 +355,18 @@ GloveBox.prototype.touchmove = function(e)
 	    // poor-man's input filter 
 		this.xVel = (dX + this.xVel * 10 ) / 10;
 		this.yVel = (dY + this.yVel * 10 ) / 10;
-	
-		var newX = this.scrollX ? ( (this.x) + dX ) : this.x;
-		var newY =  this.scrollY ? ( (this.y) + dY ) : this.y;
+		var newX = this.x;
+		var newY = this.y;
+		
+		if(this.scrollX)
+		{
+			newX = this.getClampedX(this.x + dX); 
+		}
+
+		if(this.scrollY)
+		{
+			newY = this.getClampedY(this.y + dY); 
+		}
 
 		this.setPos(newX,newY);
 	
@@ -404,31 +375,101 @@ GloveBox.prototype.touchmove = function(e)
 	}
 }
 
+GloveBox.prototype.getClampedX = function(x)
+{
+	if(!this.clampX)
+		return x;
+	
+	var parentNode = this.element.parentNode;
+	// get updated x position
+	
+    var pWidth = parentNode.clientWidth;
+	
+    var selfWidth = this.element.scrollWidth * this.scale;
+    
+	var maxX =  (selfWidth - pWidth );
+    var minX =  ((parentNode.offsetWidth - parentNode.scrollWidth ) * this.scale);
+    var newLeft = x;
+	
+	if(newLeft > maxX)
+	{
+		newLeft = maxX;
+		this.xVel = 0;
+	}
+	else if(newLeft < minX)
+	{
+		newLeft = minX;
+		this.xVel = 0;
+	}
+	
+	return newLeft;
+}
+
+GloveBox.prototype.getClampedY = function(y)
+{
+	if(!this.clampY)
+		return y;
+	
+	var parentNode = this.element.parentNode;
+	// get updated y position
+	
+    var pHeight = parentNode.scrollHeight * this.scale;
+	
+    var selfHeight = this.element.scrollHeight * this.scale;
+    
+	var maxY =  (selfHeight - pHeight );
+    var minY =  ((parentNode.offsetHeight - parentNode.scrollHeight ) * this.scale);
+    var newTop = y;
+	
+	if(newTop > maxY)
+	{
+		newTop = maxY;
+		this.yVel = 0;
+	}
+	else if(newTop < minY)
+	{
+		newTop = minY;
+		this.yVel = 0;
+	}
+	
+	return newTop;
+}
+
 
 GloveBox.prototype.touchend = function(e)
 {
-	if(this.isDragging)
+	if (this.isDragging) 
 	{
 		var self = this;
-		setTimeout( function(){self.isDragging = GloveBox.isDragging = false; self.reenableInputs();} ,1000);
+		setTimeout(function(){ self.reenableInputs(); }, 1500);
 		// Prevent the browser from doing its default thing (scroll, zoom)
 		this.removeTouchListeners();
 		var closure = function()
 		{
-		    e.preventDefault();
+			e.preventDefault();
 		};
 		// pass on our mock event
-		this.touchmove({targetTouches:e.changedTouches,preventDefault:closure});
-
+		//this.touchmove({targetTouches:e.changedTouches,preventDefault:closure});
+		
 		this.state = "ending";
 		this.element.style.webkitTransition = this.afterTrans;
-	    // magic number 2 is a projection of how far we will throw the scroll content before
-	    // snapping it back, this will take the length of the afterTrans, and is a poor-man's
-	    // interpretation of momentum
-		var newLeft = Math.round(this.scrollX ? ( this.x + (2 * this.xVel) ) : this.x);
-		var newTop =  Math.round(this.scrollY ? ( this.y + (2 * this.yVel) ) : this.y);
-	
-		this.setPos(newLeft,newTop);
+		
+		// if we are not really moving, we can skip the extra logic of momentum
+		if (Math.abs(this.xVel) + Math.abs(this.yVel) < 2) 
+		{
+			// can we get out early?
+			this.finishScrolling();
+		}
+		else 
+		{
+			// magic number 2 is a projection of how far we will throw the scroll content before
+			// snapping it back, this will take the length of the afterTrans, and is a poor-man's
+			// interpretation of momentum
+			var newLeft = Math.round(this.scrollX ? (this.x + (2 * this.xVel)) : this.x);
+			var newTop = Math.round(this.scrollY ? (this.y + (2 * this.yVel)) : this.y);
+			
+			this.setPos(newLeft, newTop);
+		}
 	}
 	return false;
 }
@@ -437,7 +478,6 @@ GloveBox.prototype.touchcancel = function(e)
 {
     this.touchend(e);
 }
-
 
 GloveBox.prototype.finishScrolling = function()
 {
@@ -451,34 +491,54 @@ GloveBox.prototype.finishScrolling = function()
     var pWidth = parentNode.clientWidth;
     var selfWidth = this.element.scrollWidth * this.scale;
     
-    var maxX =  (selfWidth - pWidth ) / 2;
-    var minX =  (pWidth - selfWidth) / 2;
-    var newLeft = this.x;// > 0 ? 0 : this.x; // hacking
-    
-	if(this.x < minX)
-		newLeft = minX;
-	else if(this.x > maxX)
-		newLeft = maxX;
+	var maxX = 0;
+	var minX = 0;
+	var newLeft = 0;
+	
+	if (pWidth > selfWidth) 
+	{
+		maxX = pWidth - selfWidth;
+		minX = 0;
+		newLeft = (pWidth - selfWidth)/2;
+	}
+	else
+	{
+		maxX = 0;
+		minX = pWidth - selfWidth;
+		newLeft = Math.min(Math.max(this.x,minX),maxX);
+	}
 	
 	// get updated y
 	
     var pHeight = parentNode.clientHeight;
     var selfHeight = this.element.scrollHeight * this.scale;
-    
-    var maxY = ( selfHeight - pHeight );// / 2; // Turning off scale based positioning
-    var minY = ( pHeight - selfHeight );// / 2;
-	var newTop = this.y > 0 ? 0 : this.y;
 	
-	if(this.y < minY)
-		newTop = minY;
-	else if(this.y > maxY)
-		newTop = maxY;
-		
+	var minY = 0;
+	var maxY = 0;
+	var newTop = 0;
+	
+	if(pHeight > selfHeight)
+	{
+		minY = 0;
+		maxY = pHeight - selfHeight;
+		newTop = (pHeight - selfHeight)/2;
+	}
+	else
+	{
+		maxY = 0;
+		minY = pHeight - selfHeight;
+		newTop = Math.min(Math.max(this.y,minY),maxY);
+	}
+
+	if(this.snap != null)
+	{
+		newLeft = this.snap.x ? Math.round(newLeft / this.snap.x ) * this.snap.x : newLeft;
+		newTop = this.snap.y ? Math.round(newTop / this.snap.y ) * this.snap.y : newTop;
+	}
+	
 	this.setPos(newLeft,newTop);
 
 }
-
-
 
 GloveBox.prototype.webkitTransitionEnd = function(e)
 {
@@ -512,7 +572,6 @@ GloveBox.prototype.removeGestureListeners = function()
     par.removeEventListener('gestureend', this, true);
 }
 
-
 GloveBox.prototype.gesturestart = function(e)
 {
 	this.addGestureListeners();
@@ -526,6 +585,7 @@ GloveBox.prototype.gesturestart = function(e)
 
 GloveBox.prototype.gesturechange = function(e)
 {
+
 	this.isScaling = true;
 	//this._rotation = e.rotation;
 	this.scale = this.startScale * e.scale;
@@ -539,11 +599,12 @@ GloveBox.prototype.gestureend = function(e)
 	this.finishScrolling();
 	return false;
 }
-
+ 
 // Mouse events are fuct!
+
 GloveBox.prototype.mousedown = function(e)
 {
-   //this.isDragging = true;
+   this.isDragging = true;
    var touchEvent = {timestamp:e.timestamp};
        touchEvent.preventDefault = function(){e.preventDefault();};
        touchEvent.stopPropagation = function(){e.stopPropagation();};
@@ -556,7 +617,7 @@ GloveBox.prototype.mousedown = function(e)
 
 GloveBox.prototype.mousemove = function(e)
 {
-   if(true || this.isDragging)
+   if(this.isDragging)
    {
         var touchEvent = {timestamp:e.timestamp};
         touchEvent.preventDefault = function(){e.preventDefault();};
@@ -575,7 +636,12 @@ GloveBox.prototype.mouseup = function(e)
     return this.touchend(touchEvent);
 }
 
+GloveBox.prototype.mouseout = function(e)
+{
+    //return this.mouseup(e);
+}
+
 GloveBox.prototype.mousewheel = function(e)
 {
-    this.scale += e.wheelDelta / 10;
+    //this.scale += e.wheelDelta / 10;
 }
