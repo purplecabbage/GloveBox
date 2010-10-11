@@ -152,7 +152,7 @@ GloveBox.prototype =
 		return this._afterT ? this._afterT : GloveBox.AfterTouchTransition;
 	},
 	set afterTrans(t){
-		this._dragT = t;
+		this._afterT = t;
 	},
 	
 	// Transition to display when we enforce the boundaries
