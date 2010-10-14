@@ -44,8 +44,10 @@ Sept 20, 2010 -jm
     - added snapping, to specify pixel grid to snap to, can be used for paging ( no events yet )
     - mouse events are still fuct
     - added GloveBox.CanTouch, incorporated fil maj's changes for android touch checking
-    
-    
+  
+Oct 14, 2010 -jm
+    - merged wildabeast's bug fix :: afterTrans setter was actually setting dragTrans  
+
 
 */
 
