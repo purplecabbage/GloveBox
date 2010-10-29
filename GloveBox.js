@@ -60,7 +60,24 @@ GloveBox.mouseEvents = ["mousemove","mouseup","mouseout","mousewheel"];
 GloveBox.DraggingTransition =   "-webkit-transform none";
 GloveBox.AfterTouchTransition = "-webkit-transform 400ms ease";
 GloveBox.BounceBackTransition = "-webkit-transform 300ms ease-out"; 
-GloveBox.CanTouch = (("createTouch" in document) || ("TouchEvent" in window));
+GloveBox.CanTouch = (("createTouch" in document));// || ("TouchEvent" in window));
+GloveBox.GetOffset = function (el) {
+	// Thank you Stack Overflow http://stackoverflow.com/questions/442404/dynamically-retrieve-html-element-x-y-position-with-javascript
+    var _x = 0;
+    var _y = 0;
+	var obj = {
+		width: el.clientWidth,
+		height: el.clientHeight
+	};
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+        _x += el.offsetLeft - el.scrollLeft;
+        _y += el.offsetTop - el.scrollTop;
+        el = el.parentNode;
+    }
+	obj.top = _y;
+	obj.left = _x;
+    return obj;
+};
 
 function GloveBox(elem)
 {
@@ -112,7 +129,8 @@ function GloveBox(elem)
 	this._dragThreshold = 20;
 	this._scaleCenter = {x:0,y:0};
 	
-	var par = this.element.parentNode;
+	var par = this.element.parentNode,
+		self = this;
 	if(GloveBox.CanTouch)
 	{
 	    par.addEventListener('touchstart', this, false);
@@ -122,6 +140,12 @@ function GloveBox(elem)
 	    par.addEventListener("mousedown",this,false);
 	}
 	par.addEventListener('click', this, true);
+	// save parent coordinates for mouse events.
+	this.parentCoords = GloveBox.GetOffset(par);
+	window.addEventListener('resize', function() {
+		self.parentCoords = GloveBox.GetOffset(par);
+	}, false);
+	
 	this.element.addEventListener("webkitTransitionEnd", this, true );
 	this.element.style.webkitTransformOrigin = "0% 0%";
 }
@@ -613,7 +637,7 @@ GloveBox.prototype.mousedown = function(e)
    var touchEvent = {timestamp:e.timestamp};
        touchEvent.preventDefault = function(){e.preventDefault();};
        touchEvent.stopPropagation = function(){e.stopPropagation();};
-       touchEvent.targetTouches = [{clientX:e.x,clientY:e.y}];
+       touchEvent.targetTouches = [{pageX:e.x,pageY:e.y}];
   // e.preventDefault();
    // with the mouse the sliding seems a little weak
    //this.element.style.webkitTransition = "-webkit-transform 200ms ease-out"; 
@@ -627,7 +651,7 @@ GloveBox.prototype.mousemove = function(e)
         var touchEvent = {timestamp:e.timestamp};
         touchEvent.preventDefault = function(){e.preventDefault();};
         touchEvent.stopPropagation = function(){e.stopPropagation();};
-        touchEvent.targetTouches = [{clientX:e.x,clientY:e.y}];
+        touchEvent.targetTouches = [{pageX:e.x,pageY:e.y}];
         return this.touchmove(touchEvent);
    }
    return false;
@@ -643,7 +667,12 @@ GloveBox.prototype.mouseup = function(e)
 
 GloveBox.prototype.mouseout = function(e)
 {
-    //return this.mouseup(e);
+	// compare mouse coords to parent coords + dimensions and conditionally fire mouseup event; only 'finish the touch' if we mouseout'ed out of the element
+	if (e.pageX > (this.parentCoords.left + this.parentCoords.width) || e.pageX < this.parentCoords.left || e.pageY > (this.parentCoords.top + this.parentCoords.height) || e.pageY < this.parentCoords.top) {
+		return this.mouseup(e);
+	} else {
+		return false;
+	}
 }
 
 GloveBox.prototype.mousewheel = function(e)
