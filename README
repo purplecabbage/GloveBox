@@ -35,3 +35,4 @@ Sept 20, 2010 -jm
 
 Oct 29, 2010 -fm
 	- fixed a bug in mouse handlers, and added a bit smarter mouseout firing
+	- better touch event detection (look for an exception rather than the existence of a property/function)

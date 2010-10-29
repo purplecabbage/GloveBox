@@ -60,7 +60,8 @@ GloveBox.mouseEvents = ["mousemove","mouseup","mouseout","mousewheel"];
 GloveBox.DraggingTransition =   "-webkit-transform none";
 GloveBox.AfterTouchTransition = "-webkit-transform 400ms ease";
 GloveBox.BounceBackTransition = "-webkit-transform 300ms ease-out"; 
-GloveBox.CanTouch = (("createTouch" in document));// || ("TouchEvent" in window));
+try { document.createEvent("TouchEvent"); GloveBox.CanTouch = true; } //look for exception to feature-detection touch events.
+catch(e) { GloveBox.CanTouch = false; }
 GloveBox.GetOffset = function (el) {
 	// Thank you Stack Overflow http://stackoverflow.com/questions/442404/dynamically-retrieve-html-element-x-y-position-with-javascript
     var _x = 0;
