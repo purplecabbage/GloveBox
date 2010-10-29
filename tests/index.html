@@ -3,13 +3,27 @@
 <html>
 <head>
     <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../GloveBox.js"></script>
     <script type="text/javascript" src="qunit/qunit.js"></script>
+    <script type="text/javascript" src="tests.js"></script>
+    <script type="text/javascript">
+        function onLoad() {
+            var tests = new Tests().run();
+        }
+    </script>
 </head>
-<body>
+<body onload="onLoad();">
   <h1 id="qunit-header">GloveBox Tests</h1>
  <h2 id="qunit-banner"></h2>
  <h2 id="qunit-userAgent"></h2>
  <ol id="qunit-tests"></ol>
- <div id="qunit-fixture">test markup, will be hidden</div>
+ <div>
+     <div id="master" style="width:260px;height:200px;overflow:hidden;float:left;clear:none;">
+		    <dl id="masterList">
+		        <div style="height:1000px;background-color:green;width:1000px;"></div>
+		    </dl>
+		    
+		</div>
+ </div>
 </body>
 </html>
