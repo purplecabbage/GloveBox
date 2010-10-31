@@ -1,4 +1,8 @@
-function Tests() { }
+function Tests() { 
+    this.bounceTimeout = 3000;
+    this.scrollTimeout = 1000;
+//    this.containerHeight = document.getElementById()
+};
 Tests.prototype = {
     run:function() {
         for (var t in this) {
@@ -8,6 +12,7 @@ Tests.prototype = {
         }
     },
     Test:function() {
+        var self = this;
         module('Initialization', {
            setup:function() {
   //             glovebox = new GloveBox("masterList");
@@ -25,8 +30,8 @@ Tests.prototype = {
             try {
                 var glovebox3 = new GloveBox('somerandomstring');
             } catch(e) {
-                ok(true, 'Expected exception raised when wrong ID string provided on construction');
-                equals(e.message, 'Cannot instantiated GloveBox on non existent element.');
+                ok(true, 'Expected exception raised when wrong ID string provided on construction' + e.type);
+                equals(e.message, "Cannot read property 'parentNode' of null");
             }
         });
         
@@ -46,7 +51,7 @@ Tests.prototype = {
             setTimeout(function() {
                 equals(glovebox.y, -100, 'Y setter works');
                 start();
-            }, 1000);
+            }, self.scrollTimeout);
         });
         test('Vertical scrolling test out of range', function() {
             QUnit.stop();
@@ -60,8 +65,8 @@ Tests.prototype = {
                 setTimeout(function() {
                     equals(glovebox.y, -800); // refactor these properties.
                     start();
-                }, 3000);
-            }, 1000);
+                }, self.bounceTimeout);
+            }, self.scrollTimeout);
         });
     }
 }
