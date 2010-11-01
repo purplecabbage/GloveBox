@@ -1,9 +1,8 @@
 // A little sugar on top of qunit
 QUnit.chain = function(tests, delay) {
-    QUnit.stop();
     if (tests.length > 0) {
         setTimeout(function() {
-            tests.pop()();
+            tests.shift()();
             QUnit.chain(tests, delay);
         }, delay);
     } else QUnit.start();
@@ -61,39 +60,51 @@ Tests.prototype = {
         module('Scrolling', {
             setup:function() {
                 glovebox = new GloveBox("masterList");
+                box = GloveBox.GetOffset(glovebox.element);
+                HALF_H = (Math.floor(box.height/2));
             },
             teardown:function() {
                 glovebox = null;
+                box = null;
+                HALF_H = null;
             }
         });
         test('Scrolling directions', function() {
+            QUnit.stop();
             expect(1);
+            var lastKnownY = glovebox.y;
+            glovebox.scrollY = false;
+            glovebox.scrollX = true;
+            glovebox.y = -1*HALF_H;
+            glovebox.finishScrolling();
             QUnit.chain([function() {
-                glovebox.scrollY = false;
-                glovebox.scrollX = true;
-                glovebox.y = -100;
-                glovebox.finishScrolling();
-                equals(glovebox.y, 0, 'Setting y when scrollY = false should do nothing');
+                equals(glovebox.y, lastKnownY, 'Setting y when scrollY = false should do nothing');
             }], self.scrollTimeout);
         });
         test('Vertical scrolling test in range', function() {
+            QUnit.stop();
             expect(1);
+            glovebox.y = -1*HALF_H;
+            glovebox.finishScrolling();
             QUnit.chain([function() {
-                glovebox.y = -100;
-                glovebox.finishScrolling();
-                equals(glovebox.y, -100, 'Setting y to in-range value works');
+                equals(glovebox.y, -1*HALF_H, 'Setting y to in-range value works');
             }], self.scrollTimeout);
         });
         test('Vertical scrolling test out of range', function() {
+            QUnit.stop();
             expect(2);
+            glovebox.y = 1*HALF_H;
+            glovebox.finishScrolling();
             QUnit.chain([function() {
-                glovebox.y = 100;
-                glovebox.finishScrolling();
+                console.log('first');
                 equals(glovebox.y, 0, 'Setting y to out-of-range positive value works');
-            }, function() {
-                glovebox.y = -10000;
+                glovebox.y = -10*HALF_H;
                 glovebox.finishScrolling();
-                equals(glovebox.y, -800, 'Setting y to out-of-range negative value works');
+            }, function() {
+                console.log('second');
+                equals(glovebox.y, -1*(box.height-glovebox.parentCoords.height), 'Setting y to out-of-range negative value works');
+            }, function() {
+                console.log('third');
             }], self.bounceTimeout);
         });
     }

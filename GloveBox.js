@@ -222,8 +222,8 @@ GloveBox.prototype.handleEvent = function(evt)
 
 GloveBox.prototype.setPos = function(x,y)
 {
-	this._x = x;
-	this._y = y;
+	this._x = (this.scrollX?x:this._x);
+	this._y = (this.scrollY?y:this._y);
 	this._updateTransform();
 }
 
