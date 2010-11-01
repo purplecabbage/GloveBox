@@ -41,6 +41,7 @@ Tests.prototype = {
                 var glovebox3 = new GloveBox('somerandomstring');
             } catch(e) {
                 ok(true, 'Expected exception raised when wrong ID string provided on construction' + e.type);
+                // perhaps should throw its own exception?
                 equals(e.message, "Cannot read property 'parentNode' of null");
             }
             ok(glovebox2.scrollY, 'Default scrolling direction is vertical');
@@ -48,6 +49,19 @@ Tests.prototype = {
         });
         test('GloveBox destruction', function(){
             // does it clean up after itself? any side effects from defining two gloveboxes on the same element?
+            // what about two gloveboxes on same element with different direction styles?
+            expect(1);
+            var g_one = new GloveBox('masterList', {scrollX:true, scrollY:false});
+            g_one.x = -200;
+            g_one.finishScrolling();
+            QUnit.chain([function() {
+                g_two = new GloveBox('masterList', {scrollY:true, scrollX:false});
+                g_two.y = -1*HALF_H;
+                g_two.finishScrolling();
+            }, function() {
+                equals(g_two.y, -1*HALF_H, 'New GloveBox instances on same element override instantiation parameters');
+            }], self.bounceTimeout);
+            
         })
         test('GloveBox options configuration', function() {
             expect(3);
@@ -96,15 +110,11 @@ Tests.prototype = {
             glovebox.y = 1*HALF_H;
             glovebox.finishScrolling();
             QUnit.chain([function() {
-                console.log('first');
                 equals(glovebox.y, 0, 'Setting y to out-of-range positive value works');
                 glovebox.y = -10*HALF_H;
                 glovebox.finishScrolling();
             }, function() {
-                console.log('second');
                 equals(glovebox.y, -1*(box.height-glovebox.parentCoords.height), 'Setting y to out-of-range negative value works');
-            }, function() {
-                console.log('third');
             }], self.bounceTimeout);
         });
     }

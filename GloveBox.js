@@ -141,6 +141,7 @@ function GloveBox(elem, options)
 	    par.addEventListener("mousedown",this,false);
 	}
 	par.addEventListener('click', this, true);
+	if (options && options.parentHeight) par.style.height = options.parentHeight;
 	// save parent coordinates for mouse events.
 	this.parentCoords = GloveBox.GetOffset(par);
 	window.addEventListener('resize', function() {
