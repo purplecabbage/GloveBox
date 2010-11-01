@@ -80,7 +80,7 @@ GloveBox.GetOffset = function (el) {
     return obj;
 };
 
-function GloveBox(elem)
+function GloveBox(elem, options)
 {
 	this.formElements = null;
 	this.state = "ready";
@@ -121,8 +121,8 @@ function GloveBox(elem)
 	this.xVel = 0;
 	this.yVel = 0;
 	
-	this.scrollY = true;
-	this.scrollX = false;
+	this.scrollY = (options&&(typeof options.scrollX != 'undefined'?options.scrollX:true));
+	this.scrollX = (options&&(typeof options.scrollY != 'undefined'?options.scrollY:false));
 	
 	this._dragT  = null;
 	this._afterT  = null;
