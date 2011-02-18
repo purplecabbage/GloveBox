@@ -24,6 +24,11 @@ July 13, 2010 -jm
         - commented out debug doc writing
 :: Scaling is exceptionally buggy, use at your own risk|peril - jm
 
+August 4th, 2010 -fm
+	- fixed on android 2.2 (no createTouch function in document, check with 'TouchEvent' on window instead).
+
+:: Scaling is exceptionally buggy, use at your own risk|peril - jm
+
 Sept 20, 2010 -jm
     - cleaned up scaling code, still does not scale from correct point, but positioning after is correct.
     - moved touchEvents/mouseEvents to static vars
@@ -32,7 +37,17 @@ Sept 20, 2010 -jm
     - added snapping, to specify pixel grid to snap to, can be used for paging ( no events yet )
     - mouse events are still fuct
     - added GloveBox.CanTouch, incorporated fil maj's changes for android touch checking
+  
+Oct 14, 2010 -jm
+    - merged wildabeast's bug fix :: afterTrans setter was actually setting dragTrans  
 
 Oct 29, 2010 -fm
 	- fixed a bug in mouse handlers, and added a bit smarter mouseout firing
 	- better touch event detection (look for an exception rather than the existence of a property/function)
+
+Feb 16, 2011 -jm
+    - major rewrite + restruct
+    - api remains the same, but implementation has been updated, code is more concise
+    
+Feb 18, 2011 -jm
+    - fauxmentum, in 2 dimensions

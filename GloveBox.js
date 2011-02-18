@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2010 Jesse MacFadyen 
+Copyright (c) 2010-2011 Jesse MacFadyen 
 jesse.macfadyen@nitobi.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -16,48 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-/*
-	
-Changelog::
-	
-July 9, 2010 - jm
-	- PinchZoom support added.
-	- Customizable transitions.
-	- disables form elements while scrolling
-	- does not fire click events on elements if _dragThreshold has been exceeded
-
-July 13, 2010 -jm
-	- added check for createTouch in document ( mouse handlers are experimental only )
-	- listeners are added using delegate self, instead of closure function
-	- allows nested gloveboxes
-	- does not interfere with other touch events in the DOM 
-        - commented out debug doc writing
-
-August 4th, 2010 -fm
-	- fixed on android 2.2 (no createTouch function in document, check with 'TouchEvent' on window instead).
-
-:: Scaling is exceptionally buggy, use at your own risk|peril - jm
-
-Sept 20, 2010 -jm
-    - cleaned up scaling code, still does not scale from correct point, but positioning after is correct.
-    - moved touchEvents/mouseEvents to static vars
-    - accepts constructor arg of string-id or dom element
-    - added clamping ( buggy, not ready for primetime )
-    - added snapping, to specify pixel grid to snap to, can be used for paging ( no events yet )
-    - mouse events are still fuct
-    - added GloveBox.CanTouch, incorporated fil maj's changes for android touch checking
-  
-Oct 14, 2010 -jm
-    - merged wildabeast's bug fix :: afterTrans setter was actually setting dragTrans  
-
-Feb 16, 2011 -jm
-    - major rewrite + restruct
-    - api remains the same, but implementation has been updated, code is more concise
-    
-Feb 18, 2011 -jm
-    - fauxmentum, in 2 dimensions
 */
 
 var GloveBox = (function(){
