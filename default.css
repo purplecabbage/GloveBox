@@ -1,0 +1,180 @@
+
+
+* {
+	-webkit-touch-callout: none; /* prevent callout to copy image, etc when tap to hold */
+	-webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
+	-webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+	-webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
+} 
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6 
+{
+	margin: 0;
+	padding: 0;	
+}
+
+body
+{
+	background-color:#000;
+	font-family: Helvetica, Verdana;
+	color:#fff;
+}
+
+#app
+{
+    position:relative;
+    left:0px;
+    right:0px;
+    top:0px;
+    bottom:0px;
+}
+
+
+input[type="text"], input[type="password"], input[type="email"]
+{
+	-webkit-user-select: text;
+	letter-spacing:0.5px;	
+	font-size: 14px;
+	
+}
+
+/* Nav Bar */
+  
+#navbar ul 
+{
+	margin: 0 0;
+	left:0px;
+	list-style: none;
+	display: block;
+	height: 48px;
+	width: 640px;
+	text-align: center;
+	line-height:48px;
+	overflow: hidden;
+	
+}
+
+#navbar li {
+	float: left;
+	clear:none;
+	position: relative;
+	height:42px;
+}
+
+
+#navbar span {
+	padding: 0 0;
+	float: left;
+	width: 105px;
+	height:48px;
+	color: #808080;
+	font-weight: bold;
+	font-size: 18px;
+	text-decoration: none;
+}
+
+#navbar li.active span 
+{
+	padding-left: 0;
+	padding-right: 0;
+	color: #00a5ce;
+}
+
+#navHolder
+{
+	left:0px;
+	right:0px;
+	height:24px;
+	overflow:hidden;
+}
+
+#navList
+{
+	height:24px;
+	overflow:hidden;
+	margin:0px 0px 10px 0px;
+	padding:0 0;
+	background-color:#333;
+}
+
+#viewStack
+{
+    height:400px;
+	position:relative;
+	bottom:0px;
+	margin:0px 0px;
+}
+
+.view
+{
+	float:left;
+	clear:none;
+	top:0px;
+	bottom:0px;
+	width:320px;
+	height:400px;
+	overflow:hidden;
+	position:absolute;
+	-webkit-transition-property: translate3D;
+    -webkit-transition-duration: 300ms;
+}
+
+.listWrapper
+{
+	overflow:hidden;
+	position:relative;
+	bottom:0px;
+	top:30px;
+	width:320px;
+	height:380px;
+	left:0px;
+	background-color:#222;
+}
+
+.view ul {
+
+	width:320px;
+	background-color:#333;
+}
+
+.view li 
+{
+	list-style:none;
+	padding:2px 4px;
+	height:56px;
+	background:-webkit-gradient(
+			linear,
+			left top,
+			left bottom,
+			color-stop(0, rgba(48,48,48,1.0)),
+			color-stop(1, rgba(64,64,64,1.0))
+	)
+			
+	
+}
+
+
+.hidden
+{
+    display:none;
+}
+
+#view1
+{
+	background-color:#ad2389;
+}
+
+#view2
+{
+	background-color:#ad8923;
+}
+
+#view3
+{
+	background-color:#8923ad;
+}
+
+
+
+
+
