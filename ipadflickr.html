@@ -1,0 +1,392 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+	<!-- Change this if you want to allow scaling -->
+    <meta name="viewport" content="width=deviceWidth; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;" />
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>iPod GloveBox Demo - Flickr Interestingness</title>
+	
+	<link media="screen" href="default.css" type= "text/css" rel="stylesheet" />
+	<script src="js/GloveBox.js" type="text/javascript" charset="utf-8"></script>
+	
+	<style>
+	
+	
+	
+	#spScale
+	{
+		color:#FFF;
+		position:absolute;
+		right:20px;
+		top:40px;
+		background-color:rgba(0,0,0,0.5);
+	}
+	
+	#spX
+	{
+		color:#FFF;
+		position:absolute;
+		right:20px;
+		top:60px;
+		background-color:rgba(0,0,0,0.5);
+	}
+	
+	#spY
+	{
+		color:#FFF;
+		position:absolute;
+		right:20px;
+		top:80px;
+		background-color:rgba(0,0,0,0.5);
+	}
+	
+	#spWidth
+	{
+		color:#FFF;
+		position:absolute;
+		right:20px;
+		top:100px;
+		background-color:rgba(0,0,0,0.5);
+	}
+	
+	dl
+	{
+		color:#fff;
+		
+	}
+	
+	dt
+	{
+		background-color:#666;
+		font-weight:bold;
+		text-indent:10px;
+		margin:0px 2px;
+		padding:10px 20px;
+	}
+	
+	dd
+	{
+	    text-indent:20px;	
+	    margin:10px 10px;
+	    padding:5px 5px;
+		border-top:1px #666 solid;
+	    text-overflow:ellipsis;
+	    overflow:hidden;
+		background-color:#222;
+	}
+
+	
+	img {
+	border: 0;
+}
+
+#tweetBox
+{
+	height:100%;
+	width:100%;
+	max-width:680px;
+	max-height:600px;
+	overflow:hidden;
+	background-color:#110000;
+	background-image:url(img/Loading.gif);
+	background-repeat:no-repeat;
+	background-position:center;
+	-webkit-background-size: 18px 18px;
+	z-index:1;
+}
+
+#tweetList {
+	color: #ddd;
+	
+	
+
+}
+#tweetList .tweet {
+	padding: 8px;
+	background:rgba(64,64,64,0.5);
+	border: 1px solid rgba(128,128,128,0.5);
+	opacity: 0.8;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	margin-bottom: .5em;
+}
+
+#tweetList a {
+	color: #05635F;
+	text-decoration: underline;
+}
+#tweetList .avatar {
+	float: left;
+}
+#tweetList .content 
+{
+	border:none;
+	padding-left: 55px;
+}
+#tweetList .extra {
+	color: #999;
+}
+
+#tweetList h4
+{
+	width:100%;
+	text-align:center;
+	margin:40px 40px;
+}
+
+
+.detailImage
+{
+	width:100%;
+	height:auto;
+	float:left;
+	margin:0 0;
+}
+
+dd
+{
+    height:85px;	
+}
+
+* 
+{
+	/* prevent callout to copy image, etc when tap to hold */
+    -webkit-touch-callout: none; 
+    /* prevent webkit from resizing text to fit 
+   -webkit-text-size-adjust: none; */
+   /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+   -webkit-tap-highlight-color: rgba(255,255,255,0.0);
+   /* prevent copy paste, to allow, change 'none' to 'text' */
+   -webkit-user-select: none; 
+} 
+		
+	</style>
+	
+    <script type="text/javascript" charset="utf-8">
+
+	var searchScript;
+	var fKey = "b2ad6e2569290fc65ab43f380e52569a";
+	var fSec = "f2f18fdbb390d1c2";
+	
+	var flickUrl = "http://api.flickr.com/services/rest/?method=flickr.interestingness.getList&format=json&api_key=b2ad6e2569290fc65ab43f380e52569a";
+	
+
+    var tweetScroller;
+    var trendScroller;
+    var targetElement; // selected item in the list
+
+    var hBoxScroller;
+
+    var currentTrend = "";
+        
+	
+	function onBodyLoad()
+	{
+		
+		// to enable scrolling on Android, you have to intercept touchstart
+		// BUT, and it's a big BUT! all click events are never fired
+		
+		document.addEventListener("touchmove", preventBehavior, false);
+
+
+
+		window.scrollTo(0, 0);
+
+		trendScroller = new GloveBox("masterList");
+		//trendScroller.scale = 1.5;
+		tweetScroller = new GloveBox("tweetList");
+		tweetScroller.scrollX = true;
+		
+		tweetScroller.canScale = true;
+		
+		getFlickrInteresting();
+    }
+
+	function getFlickrInteresting()
+	{
+		var head = document.getElementsByTagName('head');
+		
+		if (searchScript != null)
+		{
+			head[0].removeChild(searchScript);
+		}
+
+		searchScript = document.createElement('script');
+		searchScript.src = flickUrl;
+		head[0].appendChild(searchScript);
+	}
+	
+	function selectItem(evt)
+	{
+	    if (targetElement != null) {
+
+	        if (targetElement.style != null) {
+	            targetElement.style.backgroundColor = "#222";
+	        }
+        }
+		if(evt.type == "touchstart")
+		{
+		    targetElement = evt.target;
+			if(targetElement.style != null)
+			{
+            	targetElement.style.backgroundColor = "#05635F";
+			}
+		}
+		else
+		{
+
+		}
+	}
+	
+	function jsonFlickrApi(res)
+	{
+		var arrPhoto = res.photos.photo;
+ 
+		var imgList = "";//document.createElement('dt');
+		
+		for(var n = 0; n < arrPhoto.length; n++)
+		{
+			var photo = arrPhoto[n];
+			//alert(photo.title);
+			//onclick=\"getDetail(event,'" + items[item].query + "')
+			
+			var thumbUrl = getImageUrl(photo);
+			var largeUrl = thumbUrl.replace(/_s.jpg/,"_b.jpg");
+			/*
+			var img = document.createElement('img');
+			img.src = thumbUrl;
+			img.setAttribute('style', 'width:75px;height:auto;float:left;margin:8 8;');
+			
+			var tag = document.createElement('dd');
+			tag.addEventListener('click', createEventClosure(largeUrl), false);
+			*/
+			var imageTag = "<img src='" + thumbUrl + "' style='width:75px;height:auto;float:left;margin:8 8;'>"
+			//console.log(largeUrl);
+			var tag = "<dd onclick=\"showFullImage(event,'" + largeUrl + "')\" " +
+					  "ontouchstart=\"selectItem(event);\" " +
+					  "ontouchmove=\"selectItem(event);\">" + 					  
+					  imageTag + photo.title + "</dd>";
+				
+			imgList += tag;
+			
+			//imgList.appendChild(tag).appendChild(img);
+			//tag.appendChild(document.createTextNode(photo.title));
+		}
+		
+		document.getElementById("masterList").innerHTML = imgList;
+	}
+	
+	function createEventClosure (img) {
+		return function (event) {
+			showFullImage(event, img);
+		};
+	}
+	
+	//http://www.flickr.com/services/api/misc.urls.html
+	function getImageUrl(photo,size)
+	{
+		var baseUrl = "http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{secret}_s.jpg";
+		baseUrl = baseUrl.replace(/{farm-id}/g,photo.farm);
+		baseUrl = baseUrl.replace(/{server-id}/g,photo.server);
+		baseUrl = baseUrl.replace(/{id}/g,photo.id);
+		baseUrl = baseUrl.replace(/{secret}/g,photo.secret);
+		return baseUrl;
+	}
+	
+	function showFullImage(event,url)
+	{
+		console.log("showFullImage ");//event.currentTarget.innerText);
+        if (event != null) 
+        {
+            if (targetElement != null && targetElement.style != null) {
+                targetElement.style.backgroundColor = "#222";
+            }
+            targetElement = event.target;
+			if(targetElement.style != null)
+			{
+            	targetElement.style.backgroundColor = "#05635F";
+			}
+        }
+
+		
+
+	
+
+        document.getElementById('tweetList').innerHTML = "<img class=\"detailImage\" src=\"" + url + "\">";
+        
+		tweetScroller.setPos(0,0);
+		tweetScroller.scale = 1;
+		//hBoxScroller.x = -320;
+		
+        document.getElementById("headerText").innerHTML = currentTrend;
+       // document.getElementById("backButton").style.display = "block";
+	}
+	
+
+
+    function goBack()
+    {
+        //hBoxScroller.x = 0;
+        document.getElementById("headerText").innerHTML = "Interesting";
+        document.getElementById("backButton").style.display = "none";
+    }
+	
+	function preventBehavior(e) 
+	{ 
+      	e.preventDefault(); 
+    };
+	
+    
+    </script>
+  </head>
+  <body onload="onBodyLoad()">
+  
+ <script type="text/javascript">
+
+     var _gaq = _gaq || [];
+     _gaq.push(['_setAccount', 'UA-9634898-1']);
+     _gaq.push(['_trackPageview']);
+
+     (function()
+     {
+         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+     })();
+
+</script> 
+
+  	<div id="header">
+  	    <!--<img src="img/back.png" id="backButton" onclick="goBack();" style="float:left;clear:none;margin-top:7px;display:none;" />-->
+		<h1 id="headerText">Interesting!</h1>
+	</div>
+	
+
+	<div style="width:100%;position:absolute;bottom:49px;top:44px;overflow:hidden;">
+	    <div id="hBox" style="height:100%">
+		    <div id="master" style="width:100%;max-width:320px;height:100%;overflow:hidden;float:left;clear:none;">
+		        <dl id="masterList">
+			
+
+		        </dl>
+		    </div>
+		    <div id="tweetBox" >
+		        <div id="tweetList" >
+		        </div>
+		    </div>
+		</div>
+	</div>
+	
+	<span id="spScale"></span>
+	<span id="spX"></span>
+	<span id="spY"></span>	
+	<span id="spWidth"></span>	
+
+
+  	
+  </body>
+  
+</html>
