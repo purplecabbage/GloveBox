@@ -363,6 +363,7 @@ var GloveBox = (function(){
     
         mousedown:function(e)
         {   
+            e.preventDefault(); // this prevents Chrome's drag action on images!
             this.isDragging = true;
             var touchEvent = {timeStamp:e.timeStamp};
                 touchEvent.preventDefault = function(){e.preventDefault();};
