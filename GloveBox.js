@@ -137,7 +137,7 @@ var GloveBox = (function(){
 	
     	// Transition to display while the user is dragging
     	get_dragTrans:function(){
-    		return this._dragT ? this._dragT : Gbx.DraggingTransition;
+    		return  this._dragT || Gbx.DraggingTransition;
     	},
     	set_dragTrans:function(t){
     		this._dragT = t;
@@ -145,7 +145,7 @@ var GloveBox = (function(){
 	
     	// Transition to display when the user releases
     	get_afterTrans:function(){
-    		return this._afterT ? this._afterT : Gbx.AfterTouchTransition;
+    		return  this._afterT || Gbx.AfterTouchTransition;
     	},
     	set_afterTrans:function(t){
     		this._afterT = t;
@@ -153,7 +153,7 @@ var GloveBox = (function(){
 	
     	// Transition to display when we enforce the boundaries
     	get_bounceTrans:function(){
-    		return this._bounceT ? this._bounceT : Gbx.BounceBackTransition;
+    		return this._bounceT || Gbx.BounceBackTransition;
     	},
     	set_bounceTrans:function(t){
     		this._bounceT = t;
@@ -206,31 +206,21 @@ var GloveBox = (function(){
     
         _updateTransform:function()
         {
-        	var transformTemplate = "translate3d(XXXpx,YYYpx,ZZZpx) scale3D(SCALE,SCALE,1.0)";
-        	var wkTrans = transformTemplate.replace(/XXX/, this._x);
-        		wkTrans = wkTrans.replace(/YYY/,this._y);
-        		wkTrans = wkTrans.replace(/ZZZ/,0); // future use?
-        		wkTrans = wkTrans.replace(/SCALE/g,this.scale);
-        	this.element.style.webkitTransform =  wkTrans;
+                this.element.style.webkitTransform = "translate3d("+this._x+"px,"+this._y+"px,0px) scale3D("+this.scale+","+this.scale+",1.0)";
         },
     
         addTouchListeners:function()
         {
-        	var evtNames = [Gbx.EndEvent,Gbx.MoveEvent,Gbx.CancelEvent ];
-
-        	for(var n in evtNames)
-        	{
-        		window.addEventListener(evtNames[n], this, false);
-        	}
+            window.addEventListener(Gbx.EndEvent, this, false);
+            window.addEventListener(Gbx.MoveEvent, this, false);
+            window.addEventListener(Gbx.CancelEvent, this, false);
         },
     
         removeTouchListeners:function()
         {
-            var evtNames = [Gbx.EndEvent,Gbx.MoveEvent,Gbx.CancelEvent ];
-        	for(var n in evtNames)
-        	{
-        		window.removeEventListener(evtNames[n], this, false);
-        	}
+            window.removeEventListener(Gbx.EndEvent, this, false);
+            window.removeEventListener(Gbx.MoveEvent, this, false);
+            window.removeEventListener(Gbx.CancelEvent, this, false);
         },
     
         disableInputs:function()
@@ -242,7 +232,7 @@ var GloveBox = (function(){
         	}
         	this.formElements = [];
         	var tags = ["select","input","textarea"];
-        	for(var s in tags)
+        	for(var s = 0; s < 3; s++)
         	{
         		var elems = src.getElementsByTagName(tags[s]);
         		if (elems) 
@@ -274,7 +264,6 @@ var GloveBox = (function(){
     
         click:function(e)
         {
-            console.log("click :: " + this.isDragging);
         	if(this.isDragging)
         	{
         		e.preventDefault();
