@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+	<!-- Change this if you want to allow scaling -->
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	
+	<link rel="stylesheet" href="default.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
+    <title></title>
+	
+	<!-- iPad/iPhone specific css below, add after your main css >
+	<link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="ipad.css" type="text/css" />		
+	<link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="iphone.css" type="text/css" />		
+	-->
+	<script type="text/javascript" charset="utf-8" src="js/EventBroadcaster.js"></script>
+	<script type="text/javascript" charset="utf-8" src="https://github.com/purplecabbage/GloveBox/blob/tweening/GloveBox.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/xui.js"></script>
+	
+	
+	<script type="text/javascript" charset="utf-8" src="app.js"></script>
+	
+  </head>
+  
+  <body onload="init()">
+	<div id="app">
+	
+	<div id="navbar">
+		<ul id="horzList">
+			<li class="li1" id="li1"><span>view1</span></li>
+			<li class="li2" id="li2"><span>view2</span></li>
+			<li class="li3" id="li3"><span>view3</span></li>
+		</ul>
+	</div>
+	
+	<!-- <div id="map_canvas"></div> -->
+	
+	<div id="viewStack">
+		<div id="view1"  class="view hidden">
+			<h3>view1</h3>
+			<div class="listWrapper">
+				<ul id="view1Content">
+				</ul>
+			</div>
+			
+		</div>
+		<div id="view2" class="view hidden">
+			<h3>view2</h3>
+			<div class="listWrapper">
+				<ul id="view2Content">
+				</ul>
+			</div>
+		</div>
+		<div id="view3" class="view hidden">
+			<h3>view3</h3>
+			<div class="listWrapper">
+				<ul id="view3Content">
+				</ul>
+			</div>
+			
+		</div>
+	</div>
+	
+	</div>
+  	
+  </body>
+  
+  
+</html>
