@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
   <head>
 	<!-- Change this if you want to allow scaling -->
-    <meta name="viewport" content="width=deviceWidth; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;" />
+    <meta name="viewport" content="width=devicewidth; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;" />
 
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
@@ -66,12 +66,17 @@
 	
 	dd
 	{
-	    text-indent:20px;	
-	    margin:10px 10px;
+	    text-indent:12px;	
+	    line-height:24px;
+	    margin:4px 4px;
 	    padding:5px 5px;
 	    text-overflow:ellipsis;
 	    overflow:hidden;
+	    border:1px dotted #555;
+	    
+	    -webkit-border-radius: 8px;
 	}
+	
 	
 	img {
 	border: 0;
@@ -129,7 +134,8 @@
 	
     <script type="text/javascript" charset="utf-8">
 
-        var trendUrl = "http://search.twitter.com/trends/weekly.json?exclude=hashtags&callback=onGotTrending";
+        // http://api.twitter.com/1/trends/weekly.json
+        var trendUrl = "http://api.twitter.com/1/trends/weekly.json?exclude=hashtags&callback=onGotTrending";
 
         var searchUrl = "http://search.twitter.com/search.json?callback=onGotDetails&q=";
         var searchScript; // so we can remove it, before reusing it
@@ -270,7 +276,7 @@
 	
  
 	<div style="width:100%;position:absolute;bottom:49px;top:44px;overflow:hidden;">
-		<div id="master" style="width:260px;height:200px;overflow:hidden;float:left;clear:none;">
+		<div id="master" style="width:260px;height:100%;overflow:hidden;float:left;clear:none;">
 		    <dl id="masterList">
 		    </dl>
 		    
